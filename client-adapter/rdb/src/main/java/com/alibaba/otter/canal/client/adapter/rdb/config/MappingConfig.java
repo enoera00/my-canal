@@ -1,6 +1,7 @@
 package com.alibaba.otter.canal.client.adapter.rdb.config;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -108,6 +109,12 @@ public class MappingConfig implements AdapterConfig {
 
         private int                 readBatch       = 5000;
         private int                 commitBatch     = 5000;                  // etl等批量提交大小
+        private String              mergeTag;                                // 合并标记（root、child）
+        private List<String>        ignoreUpdateColumns;                     // 忽略更新的列
+        private boolean             ignoreInsert;                            // 是否忽略插入
+        private boolean             ignoreUpdate;                            // 是否忽略更新
+        private boolean             ignoreDelete;                            // 是否忽略删除
+        private int                 syncMode;                                // 同步模式（0：普通，1：追加）
 
         private Map<String, String> allMapColumns;
 
@@ -220,6 +227,54 @@ public class MappingConfig implements AdapterConfig {
 
         public void setAllMapColumns(Map<String, String> allMapColumns) {
             this.allMapColumns = allMapColumns;
+        }
+
+        public String getMergeTag() {
+            return mergeTag;
+        }
+
+        public void setMergeTag(String mergeTag) {
+            this.mergeTag = mergeTag;
+        }
+
+        public List<String> getIgnoreUpdateColumns() {
+            return ignoreUpdateColumns;
+        }
+
+        public void setIgnoreUpdateColumns(List<String> ignoreUpdateColumns) {
+            this.ignoreUpdateColumns = ignoreUpdateColumns;
+        }
+
+        public boolean isIgnoreInsert() {
+            return ignoreInsert;
+        }
+
+        public void setIgnoreInsert(boolean ignoreInsert) {
+            this.ignoreInsert = ignoreInsert;
+        }
+
+        public boolean isIgnoreUpdate() {
+            return ignoreUpdate;
+        }
+
+        public void setIgnoreUpdate(boolean ignoreUpdate) {
+            this.ignoreUpdate = ignoreUpdate;
+        }
+
+        public boolean isIgnoreDelete() {
+            return ignoreDelete;
+        }
+
+        public void setIgnoreDelete(boolean ignoreDelete) {
+            this.ignoreDelete = ignoreDelete;
+        }
+
+        public int getSyncMode() {
+            return syncMode;
+        }
+
+        public void setSyncMode(int syncMode) {
+            this.syncMode = syncMode;
         }
     }
 }

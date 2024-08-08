@@ -1,0 +1,16 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+outerAdapterKey: clickhouse1
+concurrent: true
+dbMapping:
+  database: cbs
+  table: auth_user
+  targetTable: auth_user_merged
+  targetPk:
+    username: username
+  mapAll: true
+  commitBatch: 3000 # 批量提交的大小
+  mergeTag: root
+  ignoreUpdateColumns:
+    - created_at

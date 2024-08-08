@@ -1,0 +1,13 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+outerAdapterKey: mysql-pre
+concurrent: true
+dbMapping:
+  database: cbs
+  table: worker_info
+  targetTable: worker_info
+  targetPk:
+    worker_code: worker_code
+  mapAll: true
+  commitBatch: 3000 # 批量提交的大小

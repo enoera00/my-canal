@@ -1,0 +1,13 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+outerAdapterKey: mysql-pre
+concurrent: true
+dbMapping:
+  database: cbs
+  table: wom_work_order_customer
+  targetTable: wom_work_order_customer
+  targetPk:
+    work_order_no: work_order_no
+  mapAll: true
+  commitBatch: 3000 # 批量提交的大小

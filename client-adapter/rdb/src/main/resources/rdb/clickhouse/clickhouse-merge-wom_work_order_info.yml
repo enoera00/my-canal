@@ -1,0 +1,16 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+outerAdapterKey: clickhouse1
+concurrent: true
+dbMapping:
+  database: cbs
+  table: wom_work_order_info
+  targetTable: wom_work_order
+  targetPk:
+    work_order_no: work_order_no
+  mapAll: true
+  commitBatch: 3000 # 批量提交的大小
+  mergeTag: root
+  ignoreUpdateColumns:
+    - created_at

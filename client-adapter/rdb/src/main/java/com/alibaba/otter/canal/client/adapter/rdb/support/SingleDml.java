@@ -16,6 +16,8 @@ public class SingleDml {
     private String              type;
     private Map<String, Object> data;
     private Map<String, Object> old;
+    private String              beforeType;
+    private Map<String, Object> beforeOld;
 
     public String getDestination() {
         return destination;
@@ -108,5 +110,21 @@ public class SingleDml {
         LinkedCaseInsensitiveMap map = new LinkedCaseInsensitiveMap();
         map.putAll(data);
         return map;
+    }
+
+    public String getBeforeType() {
+        return beforeType;
+    }
+
+    public void setBeforeType(String beforeType) {
+        this.beforeType = beforeType;
+    }
+
+    public Map<String, Object> getBeforeOld() {
+        return beforeOld;
+    }
+
+    public void setBeforeOld(Map<String, Object> beforeOld) {
+        this.beforeOld = beforeOld;
     }
 }

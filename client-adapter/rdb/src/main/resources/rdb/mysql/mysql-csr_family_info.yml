@@ -1,0 +1,13 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+outerAdapterKey: mysql-pre
+concurrent: true
+dbMapping:
+  database: cbs
+  table: csr_family_info
+  targetTable: csr_family_info
+  targetPk:
+    family_code: family_code
+  mapAll: true
+  commitBatch: 3000 # 批量提交的大小

@@ -1,0 +1,17 @@
+dataSourceKey: defaultDS
+destination: adapter
+groupId: g1
+outerAdapterKey: mysql1
+concurrent: true
+dbMapping:
+  database: cbs
+  table: auth_user_ext
+  targetTable: auth_user_merged
+  targetPk:
+    username: username
+  targetColumns:
+    field1: field1
+    field2: field2
+    field3:
+  commitBatch: 3000
+  mergeTag: child
