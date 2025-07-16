@@ -106,7 +106,7 @@
         <mq_amqp_client>1.0.3</mq_amqp_client>
         <kafka_version>2.4.0</kafka_version>
         <pulsar_version>2.11.4</pulsar_version>
-        <mysql_driver_version>5.1.48</mysql_driver_version>
+        <mysql_driver_version>8.0.33</mysql_driver_version>
         <maven-jacoco-plugin.version>0.8.3</maven-jacoco-plugin.version>
         <maven-surefire.version>2.22.1</maven-surefire.version>
         <argline>-server -Xms512m -Xmx1024m -Dfile.encoding=UTF-8

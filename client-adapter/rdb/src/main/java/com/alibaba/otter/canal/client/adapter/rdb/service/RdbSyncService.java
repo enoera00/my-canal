@@ -4,11 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -155,35 +151,35 @@ public class RdbSyncService {
         sync(dmls, dml -> {
             if (dml.getIsDdl() != null && dml.getIsDdl() && StringUtils.isNotEmpty(dml.getSql())) {
                 // DDL
-            columnsTypeCache.remove(dml.getDestination() + "." + dml.getDatabase() + "." + dml.getTable());
-            return false;
-        } else {
-            // DML
-            String destination = StringUtils.trimToEmpty(dml.getDestination());
-            String groupId = StringUtils.trimToEmpty(dml.getGroupId());
-            String database = dml.getDatabase();
-            String table = dml.getTable();
-            Map<String, MappingConfig> configMap;
-            if (envProperties != null && !"tcp".equalsIgnoreCase(envProperties.getProperty("canal.conf.mode"))) {
-                configMap = mappingConfig.get(destination + "-" + groupId + "_" + database + "-" + table);
+                columnsTypeCache.remove(dml.getDestination() + "." + dml.getDatabase() + "." + dml.getTable());
+                return false;
             } else {
-                configMap = mappingConfig.get(destination + "_" + database + "-" + table);
-            }
+                // DML
+                String destination = StringUtils.trimToEmpty(dml.getDestination());
+                String groupId = StringUtils.trimToEmpty(dml.getGroupId());
+                String database = dml.getDatabase();
+                String table = dml.getTable();
+                Map<String, MappingConfig> configMap;
+                if (envProperties != null && !"tcp".equalsIgnoreCase(envProperties.getProperty("canal.conf.mode"))) {
+                    configMap = mappingConfig.get(destination + "-" + groupId + "_" + database + "-" + table);
+                } else {
+                    configMap = mappingConfig.get(destination + "_" + database + "-" + table);
+                }
 
-            if (configMap == null) {
-                return false;
-            }
+                if (configMap == null) {
+                    return false;
+                }
 
-            if (configMap.values().isEmpty()) {
-                return false;
-            }
+                if (configMap.values().isEmpty()) {
+                    return false;
+                }
 
-            for (MappingConfig config : configMap.values()) {
-                appendDmlPartition(config, dml);
+                for (MappingConfig config : configMap.values()) {
+                    appendDmlPartition(config, dml);
+                }
+                return true;
             }
-            return true;
-        }
-    }   );
+        });
     }
 
     /**
@@ -221,13 +217,22 @@ public class RdbSyncService {
     public void sync(BatchExecutor batchExecutor, MappingConfig config, SingleDml dml) {
         if (config != null) {
             try {
+                RdbSyncServiceHelper.convertIfMerged(config, dml);
+                RdbSyncServiceHelper.convertBySyncMode(config, dml);
                 String type = dml.getType();
+                DbMapping dbMapping = config.getDbMapping();
                 if (type != null && type.equalsIgnoreCase("INSERT")) {
-                    insert(batchExecutor, config, dml);
+                    if (!dbMapping.isIgnoreInsert()) {
+                        insert(batchExecutor, config, dml);
+                    }
                 } else if (type != null && type.equalsIgnoreCase("UPDATE")) {
-                    update(batchExecutor, config, dml);
+                    if (!dbMapping.isIgnoreUpdate()) {
+                        update(batchExecutor, config, dml);
+                    }
                 } else if (type != null && type.equalsIgnoreCase("DELETE")) {
-                    delete(batchExecutor, config, dml);
+                    if (!dbMapping.isIgnoreDelete()) {
+                        delete(batchExecutor, config, dml);
+                    }
                 } else if (type != null && type.equalsIgnoreCase("TRUNCATE")) {
                     truncate(batchExecutor, config);
                 }
@@ -235,6 +240,7 @@ public class RdbSyncService {
                     logger.debug("DML: {}", JSON.toJSONString(dml, Feature.WriteNulls));
                 }
             } catch (SQLException e) {
+                logger.error("同步出错，DML：" + JSON.toJSONString(dml, Feature.WriteNulls), e);
                 throw new RuntimeException(e);
             }
         }
@@ -335,6 +341,11 @@ public class RdbSyncService {
         List<Map<String, ?>> values = new ArrayList<>();
         boolean hasMatched = false;
         for (String srcColumnName : old.keySet()) {
+            // 忽略无需更新的列
+            List<String> ignoreUpdateColumns = dbMapping.getIgnoreUpdateColumns();
+            if (ignoreUpdateColumns != null && ignoreUpdateColumns.contains(srcColumnName)) {
+                continue;
+            }
             List<String> targetColumnNames = new ArrayList<>();
             columnsMap.forEach((targetColumn, srcColumn) -> {
                 if (srcColumnName.equalsIgnoreCase(srcColumn)) {

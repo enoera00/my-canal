@@ -1,10 +1,17 @@
 server:
-  port: 8081
+  port: 9804
 spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
     default-property-inclusion: non_null
+logging:
+  level:
+    com:
+      clickhouse:
+        jdbc:
+          internal:
+            ClickHouseConnectionImpl: ERROR
 
 canal.conf:
   mode: tcp #tcp kafka rocketMQ rabbitMQ
@@ -17,7 +24,7 @@ canal.conf:
   secretKey:
   consumerProperties:
     # canal tcp consumer
-    canal.tcp.server.host: 127.0.0.1:11111
+    canal.tcp.server.host: 47.96.154.186:9801
     canal.tcp.zookeeper.hosts:
     canal.tcp.batch.size: 500
     canal.tcp.username:
@@ -46,26 +53,37 @@ canal.conf:
     rabbitmq.password:
     rabbitmq.resource.ownerId:
 
-#  srcDataSources:
-#    defaultDS:
-#      url: jdbc:mysql://127.0.0.1:3306/mytest?useUnicode=true
-#      username: root
-#      password: 121212
+  srcDataSources:
+    defaultDS:
+      url: jdbc:mysql://121.199.11.149:3306/cbs?useUnicode=true&useSSL=false
+      username: root
+      password: bhhb@Mysql123
   canalAdapters:
   - instance: example # canal instance Name or mq topic name
     groups:
     - groupId: g1
       outerAdapters:
       - name: logger
-#      - name: rdb
-#        key: mysql1
-#        properties:
-#          jdbc.driverClassName: com.mysql.jdbc.Driver
-#          jdbc.url: jdbc:mysql://127.0.0.1:3306/mytest2?useUnicode=true
-#          jdbc.username: root
-#          jdbc.password: 121212
-#          druid.stat.enable: false
-#          druid.stat.slowSqlMillis: 1000
+      - name: rdb
+        key: mysql-pre
+        properties:
+          jdbc.driverClassName: com.mysql.cj.jdbc.Driver
+          jdbc.url: jdbc:mysql://121.199.11.149:3306/wuxl?useUnicode=true&useSSL=false
+          jdbc.username: root
+          jdbc.password: bhhb@Mysql123
+          druid.stat.enable: false
+          druid.stat.slowSqlMillis: 1000
+      - name: rdb
+        key: clickhouse1
+        properties:
+          jdbc.driverClassName: com.clickhouse.jdbc.ClickHouseDriver
+          jdbc.url: jdbc:clickhouse://127.0.0.1:8123/cbs?useUnicode=true&useSSL=false
+          jdbc.username: admin
+          jdbc.password: Clickhouse@cbs#2023
+          druid.stat.enable: false
+          druid.stat.slowSqlMillis: 1000
+          threads: 1
+          commitSize: 1000
 #      - name: rdb
 #        key: oracle1
 #        properties:
