@@ -1,5 +1,6 @@
 package com.alibaba.otter.canal.client.adapter.rdb.service;
 
+import com.alibaba.otter.canal.client.adapter.rdb.SyncModeEnum;
 import com.alibaba.otter.canal.client.adapter.rdb.config.MappingConfig;
 import com.alibaba.otter.canal.client.adapter.rdb.support.SingleDml;
 
@@ -8,10 +9,14 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 关系数据库同步服务工具类
  * Created by Wuxl at 2023/6/21 16:50
  */
 public class RdbSyncServiceHelper {
 
+    /**
+     * 聚合数据处理
+     */
     public static void convertIfMerged(MappingConfig config, SingleDml dml) {
         Optional.ofNullable(config.getDbMapping().getMergeTag()).ifPresent(mergeTag -> {
             if (mergeTag.equals("child")) {
@@ -41,14 +46,12 @@ public class RdbSyncServiceHelper {
 
     /**
      * 根据同步模式转换语句 <br />
-     * 同步模式：0-正常，1-追加（UPDATE、DELETE转INSERT）
-     * @param config
-     * @param dml
+     * 同步模式：0-普通，1-追加（UPDATE转INSERT）
      */
     public static void convertBySyncMode(MappingConfig config, SingleDml dml) {
-        // 追加模式：UPDATE、DELETE转INSERT
-        if (config.getDbMapping().getSyncMode() == 1
-                && (dml.getType().equalsIgnoreCase("UPDATE") || dml.getType().equalsIgnoreCase("DELETE"))) {
+        // 追加模式：UPDATE转INSERT
+        if (config.getDbMapping().getSyncMode() == SyncModeEnum.INSERT.getCode()
+                && (dml.getType().equalsIgnoreCase("UPDATE"))) {
             dml.setBeforeType(dml.getType());
             dml.setType("INSERT");
             dml.setBeforeOld(dml.getOld());

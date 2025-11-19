@@ -27,7 +27,8 @@ public class Common {
         outerAdapterConfig.setName("clickhouse");
         outerAdapterConfig.setKey("clickhouse1");
         Map<String, String> properties = new HashMap<>();
-        properties.put("jdbc.driveClassName", "ru.yandex.clickhouse.ClickHouseDriver");
+//        properties.put("jdbc.driveClassName", "ru.yandex.clickhouse.ClickHouseDriver");
+        properties.put("jdbc.driveClassName", "com.clickhouse.jdbc.ClickHouseDriver");
         properties.put("jdbc.url", "jdbc:clickhouse://127.0.0.1:8123/default");
         properties.put("jdbc.username", "default");
         properties.put("jdbc.password", "123456");
